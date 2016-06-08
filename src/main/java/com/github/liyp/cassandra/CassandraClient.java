@@ -57,7 +57,7 @@ public class CassandraClient implements Closeable {
             if (numberOfParameters > 0) {
                 List<ColumnDefinitions.Definition> definitions = metadata.asList();
                 for (int i = 0; i < numberOfParameters; i++) {
-                    String info = String.format("%s:%s", metadata.getName(i), bs.getObject(i));
+                    String info = String.format("%s:%s:%s", metadata.getName(i), metadata.getType(i), bs.getObject(i));
                     logger.debug("### " + info);
                 }
             }

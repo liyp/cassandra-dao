@@ -7,7 +7,7 @@ import com.datastax.driver.mapping.annotations.Table;
 import java.util.Date;
 
 /**
- * Created by liyp on 6/5/16.
+ * CREATE TABLE test.bean (pk int, ck text, name text, date timestamp, primary key (pk, ck))
  */
 @Table(name = "bean", keyspace = "test")
 public class BeanEntity {
