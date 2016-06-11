@@ -5,17 +5,22 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.Host;
 import com.datastax.driver.core.LatencyTracker;
-import com.datastax.driver.core.QueryLogger;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
+import com.datastax.driver.mapping.AccessorMapper;
+import com.datastax.driver.mapping.AccessorReflectionMapper;
+import com.datastax.driver.mapping.AnnotationParser;
 import com.datastax.driver.mapping.MappingManager;
+import com.github.liyp.cassandra.crosssync.CrossyncManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by liyp on 6/5/16.
@@ -28,14 +33,20 @@ public class CassandraClient implements Closeable {
     private Session session;
     private MappingManager mappingManager;
 
+    private CrossyncManager crossyncManager;
+
     public CassandraClient(String[] addresses, String keyspace) {
         this.cluster = Cluster.builder().addContactPoints(addresses).build();
         this.session = cluster.connect(keyspace);
         this.mappingManager = new MappingManager(session);
+
+        this.crossyncManager = new CrossyncManager(mappingManager);
+
         cluster.register(new QueryLogg());
     }
 
     public <T> T createAccessor(Class<T> klass) {
+
         return mappingManager.createAccessor(klass);
     }
 
@@ -47,7 +58,6 @@ public class CassandraClient implements Closeable {
 
     class QueryLogg implements LatencyTracker {
 
-        @Override
         public void update(Host host, Statement statement, Exception exception, long newLatencyNanos) {
             logger.debug("### {} {} {} {}", host, statement, exception, newLatencyNanos);
             BoundStatement bs = (BoundStatement) statement;
@@ -63,12 +73,10 @@ public class CassandraClient implements Closeable {
             }
         }
 
-        @Override
         public void onRegister(Cluster cluster) {
 
         }
 
-        @Override
         public void onUnregister(Cluster cluster) {
 
         }
