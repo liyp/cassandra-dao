@@ -28,11 +28,14 @@ public class AccessorInvocationHandler<T> implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
 
-        final T daoInstance = mapper.getDaoInstance();
+        final Object daoInstance = mapper.getDaoInstance();
         // TODO: 6/12/16
         Object ret = m.invoke(daoInstance, args);
 
         // TODO: 6/12/16  check ret
+        if(ret == null) {
+            return ret;
+        }
 
         // TODO: 6/12/16 cross sync remotely
         CrossyncMethodMapper method = methodMap.get(m);
